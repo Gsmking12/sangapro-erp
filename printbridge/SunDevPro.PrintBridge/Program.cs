@@ -1,6 +1,4 @@
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Printing;
 using System.Text;
 using System.Text.Json;
 using System.Drawing;
@@ -47,12 +45,13 @@ static async Task HandleAsync(HttpListenerContext context)
 
         if (path == "printers")
         {
+            var defaultPrinter = new PrinterSettings().PrinterName;
             var printers = PrinterSettings.InstalledPrinters.Cast<string>()
                 .OrderBy(x => x)
                 .Select(name => new
                 {
                     name,
-                    isDefault = string.Equals(name, new PrinterSettings().PrinterName, StringComparison.OrdinalIgnoreCase)
+                    isDefault = string.Equals(name, defaultPrinter, StringComparison.OrdinalIgnoreCase)
                 })
                 .ToArray();
 
@@ -60,6 +59,7 @@ static async Task HandleAsync(HttpListenerContext context)
             {
                 ok = true,
                 machine = Environment.MachineName,
+                defaultPrinter,
                 printers
             });
             return;
